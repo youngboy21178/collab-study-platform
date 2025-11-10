@@ -41,6 +41,11 @@
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-community-dialects</artifactId>
+    </dependency>
+
     <!-- Security (BCrypt; JWT можна додати пізніше) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
