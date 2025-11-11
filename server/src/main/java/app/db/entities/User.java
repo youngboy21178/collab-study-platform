@@ -20,7 +20,8 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    // --- getters & setters ---
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     public Long getUserId() {
         return userId;
@@ -52,5 +53,13 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }
