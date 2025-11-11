@@ -89,4 +89,14 @@ public class GroupService {
         group.setAvatarUrl(avatarUrl);
         return groupRepository.save(group);
     }
+
+    public Group save(Group group) {
+        return groupRepository.save(group);
+    }
+    
+    public Group getGroupById(Long groupId) {
+    return groupRepository.findById(groupId)
+            .orElseThrow(() -> new IllegalArgumentException("Group not found"));
+    }
+
 }

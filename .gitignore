@@ -13,3 +13,6 @@ server/data/
 
 # OS files
 .DS_Store
+
+server/uploads/
+
