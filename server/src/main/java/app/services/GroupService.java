@@ -8,8 +8,9 @@ import app.db.repositories.MembershipRepository;
 import app.db.repositories.UserRepository;
 import app.dto.groups.CreateGroupRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,14 +21,17 @@ public class GroupService {
     private final MembershipRepository membershipRepository;
     private final UserRepository userRepository;
 
-    public GroupService(GroupRepository groupRepository,
-                        MembershipRepository membershipRepository,
-                        UserRepository userRepository) {
+    public GroupService(
+            GroupRepository groupRepository,
+            MembershipRepository membershipRepository,
+            UserRepository userRepository
+    ) {
         this.groupRepository = groupRepository;
         this.membershipRepository = membershipRepository;
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public Group createGroup(CreateGroupRequest request) {
         User owner = userRepository.findById(request.getOwnerUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Owner user not found"));
@@ -35,19 +39,18 @@ public class GroupService {
         Group group = new Group();
         group.setName(request.getName());
         group.setDescription(request.getDescription());
-        group.setCreatedBy(owner.getUserId());
-        group.setCreatedAt(LocalDateTime.now().toString());
+        group.setOwnerUserId(owner.getUserId());
         group.setAvatarUrl(request.getAvatarUrl());
+        group.setCreatedAt(Instant.now().toString());
 
         Group saved = groupRepository.save(group);
 
-        Membership m = new Membership();
-        m.setGroupId(saved.getGroupId());
-        m.setUserId(owner.getUserId());
-        m.setRole("OWNER");
-        m.setJoinedAt(LocalDateTime.now().toString());
-
-        membershipRepository.save(m);
+        Membership ownerMembership = new Membership();
+        ownerMembership.setUserId(owner.getUserId());
+        ownerMembership.setGroupId(saved.getGroupId());
+        ownerMembership.setRole("OWNER");
+        ownerMembership.setJoinedAt(Instant.now().toString());
+        membershipRepository.save(ownerMembership);
 
         return saved;
     }
@@ -56,47 +59,36 @@ public class GroupService {
         return groupRepository.findAll();
     }
 
-    public void addMember(Long groupId, Long userId) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Group not found"));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        if (membershipRepository.existsByGroupIdAndUserId(group.getGroupId(), user.getUserId())) {
-            return;
-        }
-
-        Membership m = new Membership();
-        m.setGroupId(group.getGroupId());
-        m.setUserId(user.getUserId());
-        m.setRole("MEMBER");
-        m.setJoinedAt(LocalDateTime.now().toString());
-
-        membershipRepository.save(m);
+    public Group getGroupById(Long groupId) {
+        return groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Group not found: " + groupId));
     }
 
     public List<Long> getGroupMemberUserIds(Long groupId) {
-        return membershipRepository.findByGroupId(groupId)
-                .stream()
+        List<Membership> memberships = membershipRepository.findByGroupId(groupId);
+        return memberships.stream()
                 .map(Membership::getUserId)
                 .collect(Collectors.toList());
     }
 
-    public Group updateGroupAvatar(Long groupId, String avatarUrl) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Group not found"));
+    @Transactional
+    public void updateGroupAvatar(Long groupId, String avatarUrl) {
+        Group group = getGroupById(groupId);
         group.setAvatarUrl(avatarUrl);
-        return groupRepository.save(group);
+        groupRepository.save(group);
+    }
+
+    @Transactional
+    public void addMember(Long groupId, Long userId) {
+        Membership membership = new Membership();
+        membership.setGroupId(groupId);
+        membership.setUserId(userId);
+        membership.setRole("MEMBER");
+        membership.setJoinedAt(Instant.now().toString());
+        membershipRepository.save(membership);
     }
 
     public Group save(Group group) {
         return groupRepository.save(group);
     }
-    
-    public Group getGroupById(Long groupId) {
-    return groupRepository.findById(groupId)
-            .orElseThrow(() -> new IllegalArgumentException("Group not found"));
-    }
-
 }

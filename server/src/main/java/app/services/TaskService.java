@@ -122,4 +122,8 @@ public class TaskService {
 
         return taskProgressRepository.save(progress);
     }
+    
+    public List<TaskProgress> getTaskProgressForTask(Long taskId) {
+        return taskProgressRepository.findByTaskId(taskId);
+    }
 }

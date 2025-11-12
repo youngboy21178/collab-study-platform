@@ -2,7 +2,9 @@ package app.api;
 
 import app.db.entities.Task;
 import app.db.entities.TaskProgress;
+import app.dto.tasks.AssignUserToTaskRequest;
 import app.dto.tasks.CreateTaskRequest;
+import app.dto.tasks.UpdateUserTaskStatusRequest;
 import app.services.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api")
 public class TaskController {
 
     private final TaskService taskService;
@@ -19,49 +21,48 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping
+    // Create new task in group
+    @PostMapping("/tasks")
     public ResponseEntity<Task> createTask(@RequestBody CreateTaskRequest request) {
         Task task = taskService.createTask(request);
         return ResponseEntity.ok(task);
     }
 
-    @GetMapping("/group/{groupId}")
+    // Get all tasks for group
+    @GetMapping("/groups/{groupId}/tasks")
     public ResponseEntity<List<Task>> getTasksForGroup(@PathVariable Long groupId) {
         List<Task> tasks = taskService.getTasksForGroup(groupId);
         return ResponseEntity.ok(tasks);
     }
 
-    @PatchMapping("/{taskId}/status")
-    public ResponseEntity<Task> updateStatus(
+    // Assign user to task (create TaskProgress with OPEN status)
+    @PostMapping("/tasks/{taskId}/assign")
+    public ResponseEntity<TaskProgress> assignUserToTask(
             @PathVariable Long taskId,
-            @RequestParam String status
+            @RequestBody AssignUserToTaskRequest request
     ) {
-        Task task = taskService.updateStatus(taskId, status);
-        return ResponseEntity.ok(task);
-    }
-
-    @DeleteMapping("/{taskId}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
-        taskService.deleteTask(taskId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{taskId}/assign")
-    public ResponseEntity<TaskProgress> assignUser(
-            @PathVariable Long taskId,
-            @RequestParam Long userId
-    ) {
-        TaskProgress progress = taskService.assignUserToTask(taskId, userId);
+        TaskProgress progress = taskService.assignUserToTask(taskId, request.getUserId());
         return ResponseEntity.ok(progress);
     }
 
-    @PatchMapping("/{taskId}/status/user/{userId}")
-    public ResponseEntity<TaskProgress> updateUserStatus(
+    // Update user status for task (OPEN / IN_PROGRESS / DONE)
+    @PatchMapping("/tasks/{taskId}/progress")
+    public ResponseEntity<TaskProgress> updateUserTaskStatus(
             @PathVariable Long taskId,
-            @PathVariable Long userId,
-            @RequestParam String status
+            @RequestBody UpdateUserTaskStatusRequest request
     ) {
-        TaskProgress progress = taskService.updateUserTaskStatus(taskId, userId, status);
+        TaskProgress progress = taskService.updateUserTaskStatus(
+                taskId,
+                request.getUserId(),
+                request.getStatus()
+        );
         return ResponseEntity.ok(progress);
+    }
+
+    // (optional) Get progress list for task (who is on what status)
+    @GetMapping("/tasks/{taskId}/progress")
+    public ResponseEntity<List<TaskProgress>> getTaskProgress(@PathVariable Long taskId) {
+        List<TaskProgress> progressList = taskService.getTaskProgressForTask(taskId);
+        return ResponseEntity.ok(progressList);
     }
 }

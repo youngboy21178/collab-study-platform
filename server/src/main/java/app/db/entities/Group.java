@@ -16,14 +16,14 @@ public class Group {
 
     private String description;
 
-    @Column(name = "created_by", nullable = false)
-    private Long createdBy;
-
-    @Column(name = "created_at", nullable = false)
-    private String createdAt;
+    @Column(name = "owner_user_id", nullable = false)
+    private Long ownerUserId;
 
     @Column(name = "avatar_url")
     private String avatarUrl;
+
+    @Column(name = "created_at", nullable = false)
+    private String createdAt;
 
     public Long getGroupId() {
         return groupId;
@@ -49,20 +49,12 @@ public class Group {
         this.description = description;
     }
 
-    public Long getCreatedBy() {
-        return createdBy;
+    public Long getOwnerUserId() {
+        return ownerUserId;
     }
 
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
     }
 
     public String getAvatarUrl() {
@@ -71,5 +63,13 @@ public class Group {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }
