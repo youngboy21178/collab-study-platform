@@ -55,3 +55,30 @@ CREATE TABLE IF NOT EXISTS task_progress (
     FOREIGN KEY (task_id) REFERENCES tasks(task_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+
+
+CREATE TABLE IF NOT EXISTS conversations (
+    conversation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL,             -- 'DIRECT' або 'GROUP'
+    group_id INTEGER,               -- NULL для DIRECT, заповнено для GROUP
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS conversation_participants (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    role TEXT NOT NULL,             -- 'MEMBER', 'OWNER', ...
+    FOREIGN KEY (conversation_id) REFERENCES conversations(conversation_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+    message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id INTEGER NOT NULL,
+    sender_user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (conversation_id) REFERENCES conversations(conversation_id),
+    FOREIGN KEY (sender_user_id) REFERENCES users(user_id)
+);
