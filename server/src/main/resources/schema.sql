@@ -65,12 +65,12 @@ CREATE TABLE IF NOT EXISTS conversations (
 );
 
 CREATE TABLE IF NOT EXISTS conversation_participants (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    conversation_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    role TEXT NOT NULL,             -- 'MEMBER', 'OWNER', ...
+    participant_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id  INTEGER NOT NULL,
+    user_id          INTEGER NOT NULL,
+    role             TEXT    NOT NULL,
     FOREIGN KEY (conversation_id) REFERENCES conversations(conversation_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id)        REFERENCES users(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS messages (

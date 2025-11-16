@@ -1,12 +1,19 @@
 package app.api;
 
 import app.dto.chat.CreateDirectConversationRequest;
+import app.dto.chat.ConversationDetailsResponse;
 import app.dto.chat.SendMessageRequest;
 import app.dto.chat.MessageResponse;
-import app.dto.chat.ConversationSummary; // ⬅️ ДОДАЙ ЦЕ
+import app.dto.chat.ConversationSummary;
 import app.services.ConversationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import app.dto.chat.CreateConversationResponse;
+import app.dto.chat.AddParticipantRequest;
+import app.dto.chat.CreateGroupConversationRequest;
+import app.dto.chat.UpdateMessageRequest;
+import app.dto.chat.ConversationDetailsResponse.ParticipantInfo;
+
 
 import java.util.List;
 import java.util.Map;
@@ -50,4 +57,70 @@ public class ConversationController {
     public ResponseEntity<List<ConversationSummary>> getUserConversations(@PathVariable Long userId) {
         return ResponseEntity.ok(conversationService.getConversationsForUser(userId));
     }
+
+    @GetMapping("/conversations/{conversationId}")
+    public ResponseEntity<ConversationDetailsResponse> getConversationDetails(
+            @PathVariable Long conversationId
+    ) {
+        ConversationDetailsResponse details = conversationService.getConversationDetails(conversationId);
+        if (details == null) {
+            // немає такої розмови
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(details);
+    }
+    // 3. Учасники розмови
+
+    @GetMapping("/conversations/{conversationId}/participants")
+    public ResponseEntity<List<ParticipantInfo>> getParticipants(
+            @PathVariable Long conversationId
+    ) {
+        List<ParticipantInfo> participants = conversationService.getParticipants(conversationId);
+        return ResponseEntity.ok(participants);
+    }
+
+    @PostMapping("/conversations/{conversationId}/participants")
+    public ResponseEntity<Void> addParticipant(
+            @PathVariable Long conversationId,
+            @RequestBody AddParticipantRequest request
+    ) {
+        conversationService.addParticipant(conversationId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/conversations/{conversationId}/participants/{userId}")
+    public ResponseEntity<Void> removeParticipant(
+            @PathVariable Long conversationId,
+            @PathVariable Long userId
+    ) {
+        conversationService.removeParticipant(conversationId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/group")
+    public ResponseEntity<CreateConversationResponse> createGroupConversation(
+            @RequestBody CreateGroupConversationRequest request
+    ) {
+        Long convId = conversationService.createGroupConversation(request);
+        return ResponseEntity.ok(new CreateConversationResponse(convId));
+    }
+
+        // PATCH /api/chat/messages/{messageId} – змінити content
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity<MessageResponse> updateMessage(
+            @PathVariable Long messageId,
+            @RequestBody UpdateMessageRequest request
+    ) {
+        MessageResponse resp = conversationService.updateMessage(messageId, request.getContent());
+        return ResponseEntity.ok(resp);
+    }
+
+    // DELETE /api/chat/messages/{messageId} – видалити повідомлення
+    @DeleteMapping("/messages/{messageId}")
+    public ResponseEntity<Void> deleteMessage(@PathVariable Long messageId) {
+        conversationService.deleteMessage(messageId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
