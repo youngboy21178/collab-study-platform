@@ -2,6 +2,9 @@ package app.services;
 
 import app.db.entities.User;
 import app.db.repositories.UserRepository;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import app.dto.auth.LoginRequest;
 import app.dto.auth.RegisterRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,6 +15,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final Map<String, Long> activeTokens = new ConcurrentHashMap<>();
 
     public AuthService(UserRepository userRepository,
                        BCryptPasswordEncoder passwordEncoder) {
@@ -41,7 +45,34 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        // поки що повертаємо юзера без токенів — просто факт, що логін успішний
+        // просто повертаємо користувача – токен зробимо окремо
         return user;
     }
+    public String generateTokenForUser(User user) {
+        String token = UUID.randomUUID().toString();
+        activeTokens.put(token, user.getUserId());
+        return token;
+    }
+
+    public User getUserByToken(String token) {
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException("Token is missing");
+        }
+
+        Long userId = activeTokens.get(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid token");
+        }
+
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    public void logout(String token) {
+        if (token != null && !token.isBlank()) {
+            activeTokens.remove(token);
+        }
+    }
+
+
 }

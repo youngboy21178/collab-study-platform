@@ -17,6 +17,9 @@ public class ConversationParticipant {
     @Column(name = "conversation_id", nullable = false)
     private Long conversationId;
 
+    @Column(name = "last_read_message_id")
+    private Long lastReadMessageId;
+
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
@@ -49,5 +52,13 @@ public class ConversationParticipant {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Long getLastReadMessageId() {
+        return lastReadMessageId;
+    }
+
+    public void setLastReadMessageId(Long lastReadMessageId) {
+        this.lastReadMessageId = lastReadMessageId;
     }
 }

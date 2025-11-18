@@ -1,8 +1,11 @@
 package app.services;
 
+import java.util.Optional;
 import app.db.entities.Conversation;
 import app.db.entities.ConversationParticipant;
 import app.db.entities.Message;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import app.db.repositories.ConversationParticipantRepository;
 import app.db.repositories.ConversationRepository;
 import app.db.repositories.MessageRepository;
@@ -85,16 +88,33 @@ public class ConversationService {
         }
 
         @Transactional(readOnly = true)
-        public List<MessageResponse> getMessages(Long conversationId) {
-                List<Message> messages = messageRepository.findByConversationIdOrderByMessageIdAsc(conversationId);
-                return messages.stream()
-                        .map(m -> new MessageResponse(
-                                m.getMessageId(),
-                                m.getConversationId(),
-                                m.getSenderUserId(),
-                                m.getContent()
-                        ))
-                        .toList();
+        public List<MessageResponse> getMessages(Long conversationId, Long afterId, int limit) {
+ 
+            Pageable pageable = PageRequest.of(0, limit);
+            
+            List<Message> messages;
+
+            if (afterId == null) {
+                // Варіант 1: Просто перші повідомлення чату (або останні, залежно від логіки)
+                messages = messageRepository.findByConversationIdOrderByMessageIdAsc(conversationId, pageable);
+            } else {
+                // Варіант 2: Повідомлення, які були ПІСЛЯ вказаного ID
+                messages = messageRepository.findByConversationIdAndMessageIdGreaterThanOrderByMessageIdAsc(
+                        conversationId, 
+                        afterId, 
+                        pageable
+                );
+            }
+
+            // Мапимо результат (твоя стара логіка залишається тут)
+            return messages.stream()
+                    .map(m -> new MessageResponse(
+                            m.getMessageId(),
+                            m.getConversationId(),
+                            m.getSenderUserId(),
+                            m.getContent()
+                    ))
+                    .toList();
         }
 
 
@@ -243,4 +263,45 @@ public class ConversationService {
                 }
                 messageRepository.deleteById(messageId);
         }
+
+        @Transactional
+        public void updateReadReceipt(Long conversationId, Long userId, Long lastReadMessageId) {
+        ConversationParticipant participant = participantRepository
+                .findByConversationIdAndUserId(conversationId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
+
+                // (опціонально) перевірити, що message належить цій розмові
+                if (lastReadMessageId != null) {
+                    Message msg = messageRepository.findById(lastReadMessageId)
+                            .orElseThrow(() -> new IllegalArgumentException("Message not found"));
+                    if (!msg.getConversationId().equals(conversationId)) {
+                        throw new IllegalArgumentException("Message does not belong to this conversation");
+                    }
+                }
+
+                Long current = participant.getLastReadMessageId();
+
+                // не знижуємо “прочитаність” – тільки вперед
+                if (current == null || (lastReadMessageId != null && lastReadMessageId > current)) {
+                    participant.setLastReadMessageId(lastReadMessageId);
+                    participantRepository.save(participant);
+                }
+        }
+
+        @Transactional(readOnly = true)
+        public long getUnreadCount(Long conversationId, Long userId) {
+                ConversationParticipant participant = participantRepository
+                        .findByConversationIdAndUserId(conversationId, userId)
+                        .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
+
+                Long lastReadMessageId = participant.getLastReadMessageId();
+
+                if (lastReadMessageId == null) {
+                // користувач ще нічого не читав – всі повідомлення “непрочитані”
+                return messageRepository.countByConversationId(conversationId);
+                } else {
+                return messageRepository.countByConversationIdAndMessageIdGreaterThan(conversationId, lastReadMessageId);
+                }
+        }
+
 }

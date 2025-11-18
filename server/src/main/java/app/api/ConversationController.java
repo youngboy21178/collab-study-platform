@@ -13,6 +13,9 @@ import app.dto.chat.AddParticipantRequest;
 import app.dto.chat.CreateGroupConversationRequest;
 import app.dto.chat.UpdateMessageRequest;
 import app.dto.chat.ConversationDetailsResponse.ParticipantInfo;
+import app.dto.chat.UpdateReadReceiptRequest;
+import java.util.Map;
+
 
 
 import java.util.List;
@@ -45,13 +48,17 @@ public class ConversationController {
         return ResponseEntity.ok(resp);
     }
 
-    // GET /api/chat/{conversationId}/messages
+    // GET /api/chat/{conversationId}/messages?afterId=100&limit=20
     @GetMapping("/{conversationId}/messages")
-    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable Long conversationId) {
-        List<MessageResponse> messages = conversationService.getMessages(conversationId);
+    public ResponseEntity<List<MessageResponse>> getMessages(
+            @PathVariable Long conversationId,
+            @RequestParam(value = "afterId", required = false) Long afterId,
+            @RequestParam(value = "limit", defaultValue = "20") int limit
+    ) {
+        // Тепер передаємо ці параметри в сервіс
+        List<MessageResponse> messages = conversationService.getMessages(conversationId, afterId, limit);
         return ResponseEntity.ok(messages);
     }
-
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ConversationSummary>> getUserConversations(@PathVariable Long userId) {
@@ -120,6 +127,29 @@ public class ConversationController {
     public ResponseEntity<Void> deleteMessage(@PathVariable Long messageId) {
         conversationService.deleteMessage(messageId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/conversations/{conversationId}/read-receipts")
+    public ResponseEntity<Void> updateReadReceipt(
+            @PathVariable Long conversationId,
+            @RequestBody UpdateReadReceiptRequest request
+    ) {
+        conversationService.updateReadReceipt(
+                conversationId,
+                request.getUserId(),
+                request.getLastReadMessageId()
+        );
+        return ResponseEntity.ok().build();
+    }
+
+    // GET /api/chat/conversations/{id}/unread-count?userId=1 -> { "count": 5 }
+    @GetMapping("/conversations/{conversationId}/unread-count")
+    public ResponseEntity<Map<String, Long>> getUnreadCount(
+            @PathVariable Long conversationId,
+            @RequestParam("userId") Long userId
+    ) {
+        long count = conversationService.getUnreadCount(conversationId, userId);
+        return ResponseEntity.ok(Map.of("count", count));
     }
 
 
