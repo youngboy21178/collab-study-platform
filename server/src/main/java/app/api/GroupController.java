@@ -6,6 +6,8 @@ import app.dto.groups.UpdateGroupAvatarRequest;
 import app.services.GroupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -28,15 +30,26 @@ public class GroupController {
 
     // List all groups
     @GetMapping
-    public ResponseEntity<List<Group>> getAllGroups() {
-        return ResponseEntity.ok(groupService.getAllGroups());
+    public List<Group> getAllGroups(@RequestParam(required = false) Long userId) {
+        if (userId != null) {
+            return groupService.getUserGroups(userId);
+        }
+        // Якщо ID не передали — повертаємо всі (наприклад, для адміна)
+        return groupService.getAllGroups();
     }
+
+
 
     // Get members (user IDs) of a group
     @GetMapping("/{groupId}/members")
     public ResponseEntity<List<Long>> getGroupMembers(@PathVariable Long groupId) {
         List<Long> memberIds = groupService.getGroupMemberUserIds(groupId);
         return ResponseEntity.ok(memberIds);
+    }
+
+    @DeleteMapping("/{groupId}/members/{userId}")
+    public void removeMember(@PathVariable Long groupId, @PathVariable Long userId) {
+        groupService.removeMember(groupId, userId);
     }
 
     // Update avatar by URL (simple version)
@@ -51,6 +64,10 @@ public class GroupController {
         // then load updated group and return it
         Group updated = groupService.getGroupById(groupId);
         return ResponseEntity.ok(updated);
+    }
+    @PutMapping(value = "/{groupId}/avatar/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Group uploadAvatar(@PathVariable Long groupId, @RequestParam("file") MultipartFile file) {
+        return groupService.uploadAvatarFile(groupId, file);
     }
 
     // Add member to group

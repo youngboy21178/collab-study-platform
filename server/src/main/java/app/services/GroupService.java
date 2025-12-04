@@ -9,6 +9,12 @@ import app.db.repositories.UserRepository;
 import app.dto.groups.CreateGroupRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import java.time.Instant;
 import java.util.List;
@@ -70,6 +76,34 @@ public class GroupService {
                 .map(Membership::getUserId)
                 .collect(Collectors.toList());
     }
+    @Transactional
+    public Group uploadAvatarFile(Long groupId, MultipartFile file) {
+        Group group = getGroupById(groupId);
+
+        try {
+            // 1. Папка для груп
+            Path uploadDir = Paths.get("uploads", "groups");
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            // 2. Ім'я файлу = ID групи
+            String filename = groupId + ".png";
+            Path filePath = uploadDir.resolve(filename);
+
+            // 3. Зберігаємо
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 4. Оновлюємо посилання в БД
+            String fileUrl = "/uploads/groups/" + filename;
+            group.setAvatarUrl(fileUrl);
+
+            return groupRepository.save(group);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save group avatar", e);
+        }
+    }
 
     @Transactional
     public void updateGroupAvatar(Long groupId, String avatarUrl) {
@@ -88,7 +122,41 @@ public class GroupService {
         membershipRepository.save(membership);
     }
 
+    @Transactional
+    public void removeMember(Long groupId, Long userId) {
+
+        Group group = getGroupById(groupId);
+        if (group.getOwnerUserId().equals(userId)) {
+            throw new IllegalArgumentException("Cannot kick the owner of the group!");
+        }
+
+
+        Membership membership = membershipRepository.findByGroupIdAndUserId(groupId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("User is not a member of this group"));
+
+      
+        membershipRepository.delete(membership);
+    }
+
     public Group save(Group group) {
         return groupRepository.save(group);
+    }
+    public List<Group> getUserGroups(Long userId) {
+        // 1. Групи, де я власник
+        List<Group> ownedGroups = groupRepository.findByOwnerUserId(userId);
+
+        // 2. Групи, де я учасник (через таблицю Membership)
+        List<Membership> memberships = membershipRepository.findByUserId(userId);
+        List<Long> joinedGroupIds = memberships.stream()
+                .map(Membership::getGroupId)
+                .collect(Collectors.toList());
+        List<Group> joinedGroups = groupRepository.findAllById(joinedGroupIds);
+
+        // 3. Об'єднуємо (Set автоматично прибирає дублікати)
+        java.util.Set<Group> allGroups = new java.util.HashSet<>();
+        allGroups.addAll(ownedGroups);
+        allGroups.addAll(joinedGroups);
+
+        return new java.util.ArrayList<>(allGroups);
     }
 }

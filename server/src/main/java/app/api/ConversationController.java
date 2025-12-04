@@ -151,6 +151,13 @@ public class ConversationController {
         long count = conversationService.getUnreadCount(conversationId, userId);
         return ResponseEntity.ok(Map.of("count", count));
     }
+    @GetMapping("/conversations/of-user/{userId}")
+    public ResponseEntity<List<ConversationSummary>> getConversationsForUser(
+            @PathVariable Long userId
+    ) {
+        List<ConversationSummary> conversations = conversationService.getConversationsForUser(userId);
+        return ResponseEntity.ok(conversations);
+    }
 
 
 }

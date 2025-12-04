@@ -1,9 +1,9 @@
-DROP TABLE IF EXISTS memberships;
-DROP TABLE IF EXISTS groups;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS tasks;
+-- DROP TABLE IF EXISTS memberships;
+-- DROP TABLE IF EXISTS groups;
+-- DROP TABLE IF EXISTS users;
+-- DROP TABLE IF EXISTS tasks;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   user_id       INTEGER PRIMARY KEY AUTOINCREMENT,
   name          TEXT NOT NULL,
   email         TEXT NOT NULL UNIQUE,
@@ -11,7 +11,7 @@ CREATE TABLE users (
   avatar_url    TEXT
 );
 
-CREATE TABLE groups (
+CREATE TABLE IF NOT EXISTS groups (
   group_id     INTEGER PRIMARY KEY AUTOINCREMENT,
   name         TEXT NOT NULL,
   description  TEXT,
@@ -21,7 +21,7 @@ CREATE TABLE groups (
   FOREIGN KEY (created_by) REFERENCES users(user_id)
 );
 
-CREATE TABLE memberships (
+CREATE TABLE IF NOT EXISTS memberships (
   membership_id INTEGER PRIMARY KEY AUTOINCREMENT,
   group_id      INTEGER NOT NULL,
   user_id       INTEGER NOT NULL,
