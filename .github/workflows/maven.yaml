@@ -1,0 +1,42 @@
+name: Java CI/CD Pipeline
+
+# Коли запускати: при кожному Push у гілки main або master
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Скачуємо твій код на віртуальну машину GitHub
+    - uses: actions/checkout@v4
+
+    # 2. Встановлюємо Java 21 (Temurin)
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    # 3. CI: Запускаємо ТЕСТИ
+    # Якщо тести впадуть, процес зупиниться і ти отримаєш повідомлення про помилку
+    - name: Run Unit Tests
+      run: mvn test
+      working-directory: ./server
+
+    # 4. CD (Delivery): Збираємо .JAR файл
+    # Цей крок виконується тільки якщо тести пройшли успішно
+    - name: Build JAR package
+      run: mvn package -DskipTests
+      working-directory: ./server
+
+    # 5. CD (Deployment): Збираємо Docker Image
+    # Це перевіряє, чи валідний твій Dockerfile і чи готовий проект до запуску в контейнері
+    - name: Build Docker Image
+      run: docker build . -t csp-server:latest
+      working-directory: ./server

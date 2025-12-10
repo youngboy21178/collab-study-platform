@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  server:
+    build: ./server             # Шлях до папки з Dockerfile сервера
+    container_name: csp-server
+    ports:
+      - "8080:8080"             # Прокидаємо порт назовні
+    volumes:
+      - ./server/data:/app/data # Важливо! Зберігаємо файл app.db на вашому ПК, щоб дані не зникали
+    restart: unless-stopped

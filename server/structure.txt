@@ -1,0 +1,178 @@
+.
+├── data
+│   └── app.db
+├── pom.xml
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── app
+│   │   │       ├── api
+│   │   │       │   ├── AuthController.java
+│   │   │       │   ├── ConversationController.java
+│   │   │       │   ├── GroupController.java
+│   │   │       │   ├── HealthController.java
+│   │   │       │   ├── ResourceController.java
+│   │   │       │   ├── TaskController.java
+│   │   │       │   └── UserController.java
+│   │   │       ├── Application.java
+│   │   │       ├── config
+│   │   │       │   ├── SecurityConfig.java
+│   │   │       │   ├── StaticResourceConfig.java
+│   │   │       │   └── WebSocketConfig.java
+│   │   │       ├── db
+│   │   │       │   ├── converters
+│   │   │       │   │   └── LocalDateTimeEpochMillisConverter.java
+│   │   │       │   ├── entities
+│   │   │       │   │   ├── ActivityLog.java
+│   │   │       │   │   ├── Conversation.java
+│   │   │       │   │   ├── ConversationParticipant.java
+│   │   │       │   │   ├── Group.java
+│   │   │       │   │   ├── Membership.java
+│   │   │       │   │   ├── Message.java
+│   │   │       │   │   ├── Resource.java
+│   │   │       │   │   ├── Task.java
+│   │   │       │   │   ├── TaskProgress.java
+│   │   │       │   │   ├── TaskStatus.java
+│   │   │       │   │   └── User.java
+│   │   │       │   └── repositories
+│   │   │       │       ├── ActivityLogRepository.java
+│   │   │       │       ├── ConversationParticipantRepository.java
+│   │   │       │       ├── ConversationRepository.java
+│   │   │       │       ├── GroupRepository.java
+│   │   │       │       ├── MembershipRepository.java
+│   │   │       │       ├── MessageRepository.java
+│   │   │       │       ├── ResourceRepository.java
+│   │   │       │       ├── TaskProgressRepository.java
+│   │   │       │       ├── TaskRepository.java
+│   │   │       │       └── UserRepository.java
+│   │   │       ├── dto
+│   │   │       │   ├── auth
+│   │   │       │   │   ├── LoginRequest.java
+│   │   │       │   │   ├── RegisterRequest.java
+│   │   │       │   │   ├── UpdateGroupAvatarRequest.java
+│   │   │       │   │   └── UpdateUserProfileRequest.java
+│   │   │       │   ├── chat
+│   │   │       │   │   ├── AddParticipantRequest.java
+│   │   │       │   │   ├── ConversationDetailsResponse.java
+│   │   │       │   │   ├── ConversationSummary.java
+│   │   │       │   │   ├── CreateConversationResponse.java
+│   │   │       │   │   ├── CreateDirectConversationRequest.java
+│   │   │       │   │   ├── CreateGroupConversationRequest.java
+│   │   │       │   │   ├── MessageResponse.java
+│   │   │       │   │   ├── SendMessageRequest.java
+│   │   │       │   │   └── UpdateMessageRequest.java
+│   │   │       │   ├── groups
+│   │   │       │   │   └── CreateGroupRequest.java
+│   │   │       │   └── tasks
+│   │   │       │       ├── AssignUserToTaskRequest.java
+│   │   │       │       ├── CreateTaskRequest.java
+│   │   │       │       └── UpdateUserTaskStatusRequest.java
+│   │   │       └── services
+│   │   │           ├── AuthService.java
+│   │   │           ├── ConversationService.java
+│   │   │           ├── GroupService.java
+│   │   │           ├── ResourceService.java
+│   │   │           ├── TaskService.java
+│   │   │           └── UserService.java
+│   │   └── resources
+│   │       ├── application.yml
+│   │       └── schema.sql
+│   └── test
+│       └── java
+│           └── app
+│               ├── ApplicationTests.java
+│               └── services
+│                   ├── AuthServiceTests.java
+│                   ├── GroupServiceTests.java
+│                   └── TaskServiceTests.java
+├── structure.txt
+└── target
+    ├── classes
+    │   ├── app
+    │   │   ├── api
+    │   │   │   ├── AuthController.class
+    │   │   │   ├── ConversationController.class
+    │   │   │   ├── GroupController.class
+    │   │   │   ├── HealthController.class
+    │   │   │   ├── TaskController.class
+    │   │   │   └── UserController.class
+    │   │   ├── Application.class
+    │   │   ├── config
+    │   │   │   ├── SecurityConfig.class
+    │   │   │   └── StaticResourceConfig.class
+    │   │   ├── db
+    │   │   │   ├── converters
+    │   │   │   │   └── LocalDateTimeEpochMillisConverter.class
+    │   │   │   ├── entities
+    │   │   │   │   ├── Conversation.class
+    │   │   │   │   ├── ConversationParticipant.class
+    │   │   │   │   ├── Group.class
+    │   │   │   │   ├── Membership.class
+    │   │   │   │   ├── Message.class
+    │   │   │   │   ├── Task.class
+    │   │   │   │   ├── TaskProgress.class
+    │   │   │   │   ├── TaskStatus.class
+    │   │   │   │   └── User.class
+    │   │   │   └── repositories
+    │   │   │       ├── ConversationParticipantRepository.class
+    │   │   │       ├── ConversationRepository.class
+    │   │   │       ├── GroupRepository.class
+    │   │   │       ├── MembershipRepository.class
+    │   │   │       ├── MessageRepository.class
+    │   │   │       ├── TaskProgressRepository.class
+    │   │   │       ├── TaskRepository.class
+    │   │   │       └── UserRepository.class
+    │   │   ├── dto
+    │   │   │   ├── auth
+    │   │   │   │   ├── LoginRequest.class
+    │   │   │   │   ├── RegisterRequest.class
+    │   │   │   │   └── UpdateUserProfileRequest.class
+    │   │   │   ├── chat
+    │   │   │   │   ├── AddParticipantRequest.class
+    │   │   │   │   ├── ConversationDetailsResponse$ParticipantInfo.class
+    │   │   │   │   ├── ConversationDetailsResponse.class
+    │   │   │   │   ├── ConversationSummary.class
+    │   │   │   │   ├── CreateConversationResponse.class
+    │   │   │   │   ├── CreateDirectConversationRequest.class
+    │   │   │   │   ├── CreateGroupConversationRequest.class
+    │   │   │   │   ├── MessageResponse.class
+    │   │   │   │   ├── SendMessageRequest.class
+    │   │   │   │   └── UpdateMessageRequest.class
+    │   │   │   ├── groups
+    │   │   │   │   ├── CreateGroupRequest.class
+    │   │   │   │   └── UpdateGroupAvatarRequest.class
+    │   │   │   └── tasks
+    │   │   │       ├── AssignUserToTaskRequest.class
+    │   │   │       ├── CreateTaskRequest.class
+    │   │   │       └── UpdateUserTaskStatusRequest.class
+    │   │   └── services
+    │   │       ├── AuthService.class
+    │   │       ├── ConversationService.class
+    │   │       ├── GroupService.class
+    │   │       ├── TaskService.class
+    │   │       └── UserService.class
+    │   ├── application.yml
+    │   └── schema.sql
+    ├── generated-sources
+    │   └── annotations
+    ├── generated-test-sources
+    │   └── test-annotations
+    ├── maven-status
+    │   └── maven-compiler-plugin
+    │       ├── compile
+    │       │   └── default-compile
+    │       │       ├── createdFiles.lst
+    │       │       └── inputFiles.lst
+    │       └── testCompile
+    │           └── default-testCompile
+    │               ├── createdFiles.lst
+    │               └── inputFiles.lst
+    └── test-classes
+        └── app
+            ├── ApplicationTests.class
+            └── services
+                ├── AuthServiceTests.class
+                ├── GroupServiceTests.class
+                └── TaskServiceTests.class
+
+51 directories, 125 files
