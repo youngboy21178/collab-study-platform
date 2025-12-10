@@ -14,3 +14,5 @@ server/data/*.db
 # Інше сміття
 *.log
 .DS_Store
+
+client/output/

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.messenger.ui.controllers.GroupsController"
+      spacing="15.0"
+      style="-fx-background-color: linear-gradient(to bottom right, #253745, #11212D); -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 20, 0, 0, 0);"
+      maxWidth="600" maxHeight="700">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Button text="← Back" onAction="#onClose" style="-fx-background-color: transparent; -fx-text-fill: #CCD0CF; -fx-font-weight: bold; -fx-cursor: hand;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="My Groups" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #CCD0CF;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="+" onAction="#onShowCreate" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;"/>
+        </HBox>
+
+        <Separator opacity="0.3"/>
+
+        <ListView fx:id="groupsListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-padding: 0;"/>
+
+        <VBox fx:id="createGroupPane" spacing="10" style="-fx-background-color: #11212D; -fx-padding: 15; -fx-background-radius: 10;" visible="false" managed="false">
+            
+            <Label text="Create New Group" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+            
+            <TextField fx:id="newGroupName" promptText="Group Name" style="-fx-background-color: #253745; -fx-text-fill: white;"/>
+            <TextField fx:id="newGroupDesc" promptText="Description" style="-fx-background-color: #253745; -fx-text-fill: white;"/>
+            
+            <Label fx:id="errorLabel" textFill="#ff6b6b" wrapText="true" visible="false" managed="false" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Cancel" onAction="#onCancelCreate" style="-fx-background-color: #4A5C6A; -fx-text-fill: white;"/>
+                <Button text="Create" onAction="#onCreateGroup" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+            </HBox>
+        </VBox>
+    </children>
+</VBox>
