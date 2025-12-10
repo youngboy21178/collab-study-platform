@@ -1,123 +1,154 @@
-# **Collab Study Platform**
+# 🌟 **Collab Study Platform — Enhanced Documentation**
 
-## **1\. Project Description and Application Goals**
+A modern **client–server desktop application** designed to make group studying organized, interactive, and convenient. This document provides a polished, structured overview of the system, its architecture, components, and development insights.
 
-**Collab Study Platform** is a client-server desktop application designed for students to facilitate group studying. It solves the problem of organizing study materials, communication, and task tracking in one place.  
-**Key Objectives:**
+---
 
-* Enable the creation of study groups and member management.  
-* Provide real-time communication (chat) and notifications.  
-* Efficiently manage tasks (To-Do) and share study materials (files).
+## 🎯 **1. Project Overview & Goals**
 
-## **2\. System Architecture**
+**Collab Study Platform** helps students collaborate efficiently by combining communication, task tracking, and resource sharing in one place.
 
-The application is built on a three-tier architecture:
+### **Key Objectives:**
+- Create and manage study groups effortlessly.
+- Provide **real-time chat** and instant notifications.
+- Support team productivity with **task management** and **file sharing**.
+- Ensure a smooth desktop experience using **JavaFX** and a robust backend.
 
-1. **Frontend (Client \- JavaFX):**  
-   * Handles user interaction (GUI).  
-   * Communicates with the server via **REST API** (for data) and **WebSocket/STOMP** (for real-time chat and task updates).  
-   * Stores the session token in memory (SessionStore).  
-2. **Backend (Server \- Spring Boot):**  
-   * Processes business logic, authentication, and authorization.  
-   * Exposes REST endpoints and the WebSocket broker.  
-   * Manages file uploads to local storage.  
-3. **Database (SQLite):**  
-   * Stores persistent data (users, groups, messages, tasks).  
-   * File-based database (app.db) suitable for simple containerized deployment.
+---
 
-graph LR  
-    A\[Client (JavaFX)\] \-- REST / HTTP \--\> B\[Server (Spring Boot)\]  
-    A \-- WebSocket / STOMP \--\> B  
-    B \-- JDBC \--\> C\[(Database SQLite)\]  
-    B \-- I/O \--\> D\[File Storage (Uploads)\]
+## 🏗️ **2. System Architecture**
 
-## **3\. Database Model (ER Diagram)**
+The solution follows a clean **three-tier architecture**, ensuring scalability and modularity.
 
-The database is designed to support relational links between users and groups.  
-*(Insert your ER diagram image above)*  
-**Main Tables:**
+### **1. Frontend (JavaFX Client)**
+- Interactive GUI for students.
+- Communicates with backend via **REST API** and **WebSocket/STOMP**.
+- Stores auth tokens in an in-memory `SessionStore`.
 
-* **users:** Stores login credentials (hashed passwords), profile info, and Google IDs.  
-* **groups:** Definitions of study groups (name, owner).  
-* **memberships:** M:N association table between users and groups (roles).  
-* **conversations & messages:** Stores chat history (direct and group messages).  
-* **tasks & task\_progress:** Task management and status tracking (OPEN, IN\_PROGRESS, DONE) for each user.  
-* **resources:** Metadata about uploaded files.
+### **2. Backend (Spring Boot Server)**
+- Handles authentication, business logic, and authorization.
+- Hosts REST endpoints and a WebSocket broker.
+- Saves uploaded files to local storage.
 
-## **4\. Documentation of REST API and WebSocket Endpoints**
+### **3. Database (SQLite)**
+- Lightweight relational database (`app.db`).
+- Stores persistent entities: users, groups, tasks, messages, etc.
 
-### **REST API (Key Endpoints)**
+### **Architecture Diagram**
+```mermaid
+graph LR
+    A[JavaFX Client] -- REST/HTTP --> B[Spring Boot Server]
+    A -- WebSocket/STOMP --> B
+    B -- JDBC --> C[(SQLite DB)]
+    B -- File I/O --> D[File Storage]
+```
 
-**Authentication:**
+---
 
-* POST /api/auth/login \- Login (returns JWT/token).  
-* POST /api/auth/register \- Register a new user.  
-* GET /api/auth/oauth2/success \- Exchange Google session for an application token.
+## 🗄️ **3. Database Model (ER Diagram)**
 
-**Groups and Tasks:**
+The data model supports clear relationships between users, groups, and resources.
 
-* GET /api/groups \- List user's groups.  
-* POST /api/groups \- Create a new group.  
-* GET /api/groups/{id}/tasks \- Get tasks for a group.  
-* POST /api/tasks \- Create a new task.  
-* PATCH /api/tasks/{id}/progress \- Update task status.
+### **Main Tables:**
+- **users** — credentials, profile info, Google OAuth IDs.
+- **groups** — study groups with owners.
+- **memberships** — M:N relations between users and groups.
+- **conversations & messages** — chat system structure.
+- **tasks & task_progress** — task states per user.
+- **resources** — metadata of uploaded study materials.
 
-**Chat:**
+---
 
-* GET /api/chat/conversations/of-user/{id} \- List conversations.  
-* GET /api/chat/{id}/messages \- Load message history.
+## 🔌 **4. API Documentation**
 
-**Materials:**
+### **REST Endpoints**
 
-* POST /api/groups/{id}/resources \- Upload file (Multipart).  
-* GET /api/resources/{id}/download \- Download file.
+#### 🔐 Authentication
+- `POST /api/auth/login` — user login (returns token).
+- `POST /api/auth/register` — register new user.
+- `GET /api/auth/oauth2/success` — exchange Google session for app token.
+
+#### 👥 Groups & Tasks
+- `GET /api/groups` — fetch user groups.
+- `POST /api/groups` — create a group.
+- `GET /api/groups/{id}/tasks` — load tasks.
+- `POST /api/tasks` — create task.
+- `PATCH /api/tasks/{id}/progress` — update progress.
+
+#### 💬 Chat
+- `GET /api/chat/conversations/of-user/{id}` — list conversations.
+- `GET /api/chat/{id}/messages` — fetch message history.
+
+#### 📁 Materials
+- `POST /api/groups/{id}/resources` — upload file (Multipart).
+- `GET /api/resources/{id}/download` — download resource.
+
+---
 
 ### **WebSocket (STOMP)**
+**Endpoint:** `ws://localhost:8080/ws`
 
-**Endpoint:** ws://localhost:8080/ws
+#### Subscriptions
+- `/topic/conversations/{id}` — real-time messages.
+- `/topic/groups/{id}/tasks` — live task updates.
 
-* **Subscribe:** /topic/conversations/{id} \- Receive new messages in chat.  
-* **Subscribe:** /topic/groups/{id}/tasks \- Receive task changes (real-time update).  
-* **Send:** /app/chat.sendMessage \- Send a message via socket.
+#### Send
+- `/app/chat.sendMessage` — send chat message.
 
-## **5\. User Interface Examples**
+---
 
-1. **Login and Registration:** Users can log in via email or Google OAuth.  
-2. **Main Dashboard:** Displays an orbital menu for navigation to Chat, Groups, and Tasks.  
-3. **Chat and Groups:** Interface for real-time communication and group member management.
+## 🖼️ **5. User Interface (Overview)**
+- **Login/Registration** — includes Google OAuth.
+- **Dashboard** — orbital-style navigation.
+- **Chat View** — real-time messaging.
+- **Group Management** — members and resources.
+- **Task Board** — track and update group tasks.
 
-## **6\. Description of Challenges and Solutions**
+---
 
-During development, we encountered several technical issues:  
-**Google OAuth and JavaFX WebView:**
+## ⚙️ **6. Development Challenges & Solutions**
 
-* *Problem:* Google blocks logins via embedded browsers (WebView) for security reasons ("Browser not secure").  
-* *Solution:* Changed User-Agent in JavaFX to simulate a modern browser (Edge/Chrome) and managed Cookies using java.net.CookieManager to transfer the session to the API client.
+### 🔐 Google OAuth in JavaFX
+**Problem:** Google blocks WebView as an insecure browser.
 
-**Synchronizing REST and WebSocket:**
+**Solution:**
+- Spoofed User-Agent to mimic modern Chrome/Edge.
+- Used `CookieManager` to transfer auth session to REST client.
 
-* *Problem:* How to secure WebSocket authentication when using simple tokens.  
-* *Solution:* Implemented a hybrid approach – REST is used for loading history and file uploads, while WebSocket serves only for distributing new messages in real-time.
+---
 
-**Deployment (Docker & CI/CD):**
+### 🔄 Syncing REST and WebSocket
+**Challenge:** Secure WebSocket communication with simple tokens.
 
-* *Problem:* Issues with Java image versions in Dockerfile and large file sizes during Git push.  
-* *Solution:* Used multi-stage Docker build with eclipse-temurin:21 and configured .gitignore to exclude build artifacts (jpackage output).
+**Solution:**
+- REST used for history & file handling.
+- WebSocket handles **only real-time events**.
 
-## **7\. Evaluation of Work with AI**
+---
 
-AI tools (ChatGPT/Claude/Gemini) were used in the project.  
-**What helped:**
+### 🐳 Deployment & CI/CD
+**Problems:** Incorrect Java images and large Git pushes.
 
-* Generating boilerplate code for JavaFX controllers and FXML structure.  
-* Quickly creating SQL schema for SQLite.  
-* Debugging errors (e.g., 401 Unauthorized with OAuth, module-info.java dependency issues).  
-* Creating configuration for Docker and GitHub Actions pipeline.
+**Solutions:**
+- Multi-stage Docker build using `eclipse-temurin:21`.
+- Clean `.gitignore` for build artifacts.
 
-**What required manual tuning:**
+---
 
-* Logic for scene switching and data passing between controllers.  
-* Specific AuthService logic, where AI suggested complex Spring Security chains that we had to simplify for the semester project needs.  
-* CSS styling – AI generates generic designs which had to be adapted to the application theme.
+## 🤖 **7. AI Involvement & Evaluation**
 
-**Author:** Melnyk Maksym | Semak Mikhailo
+### ⭐ What AI Helped With
+- Boilerplate JavaFX controllers & FXML.
+- SQL schema generation.
+- Debugging OAuth, 401 errors, module issues.
+- Dockerfile + GitHub Actions setup.
+
+### 🛠️ What Required Manual Effort
+- Controller communication & scene management.
+- Simplifying Spring Security suggestions.
+- Custom UI/UX styling beyond generic AI output.
+
+---
+
+## ✍️ **Author**
+**Melnyk Maksym & Semak Mikhailo**
