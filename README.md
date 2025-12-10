@@ -120,4 +120,4 @@ AI tools (ChatGPT/Claude/Gemini) were used in the project.
 * Specific AuthService logic, where AI suggested complex Spring Security chains that we had to simplify for the semester project needs.  
 * CSS styling – AI generates generic designs which had to be adapted to the application theme.
 
-**Author:** \[Your Name / Team\]
+**Author:** Melnyk Maksym | Semak Mikhailo
